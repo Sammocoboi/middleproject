@@ -143,3 +143,25 @@ CACHES = {
         }
     }
 }
+
+# Celery 
+CELERY_BROKER_URL = env('CELERY_BROKER_URL',default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ]
+}
+
+# в дальнейшем привяжем модель аунтефекации пользователя 
+#AUTH_USER_MODEL = 'user.User'
+

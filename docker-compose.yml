@@ -1,49 +1,48 @@
-
-version:'3.8'
-
-
+version: '3.8'  # Кавычки не нужны для числового значения
 
 services:
   web:
-    build:.
+    build: .
     ports:
-      -"8000:8000"
+      - "8000:8000"
     volumes:
-      -./src:/app/src
-      -./mediaL:/app/media
-    enviroment:
-      -DJANGO_ENV = development 
-      -REDIS_URL = redis://:6379/0
-      -CELERY_BROKER_URL = redis://localhost:6379/0
+      - ./src:/app/src
+      - ./media:/app/media  # Исправлено: mediaL → media
+    environment:  # Исправлено: enviroment → environment
+      - DJANGO_ENV=development  # Убраны пробелы вокруг "="
+      - REDIS_URL=redis://redis:6379/0  # Исправлено имя хоста
+      - CELERY_BROKER_URL=redis://redis:6379/0  # Исправлено имя хоста
     depends_on:
-      -redis
-    command:puthon src/manage.py runserver 0.0.0.0:8000
+      - redis
+    command: python src/manage.py runserver 0.0.0.0:8000  # Исправлено: puthon → python
 
-    redis:
-      image:redis:7-alpine 
-      ports:
-        -"6379:6379"
+  redis:  # Должен быть на том же уровне отступа, что и web
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
     
-    celery:
-      build:.
-      command:celery -A config worker -loglevel-info 
-      enviroment:
-        -DJANGO_ENV = development 
-        -REDIS_URL = redis://:6379/0
-        -CELERY_BROKER_URL = redis://localhost:6379/0
-      depends_on:
-        -redis
-      volumes:
-        -./src:/app/src
+  celery:
+    build: .
+    command: celery -A config worker --loglevel=info  # Исправлено: -loglevel-info → --loglevel=info
+    environment:
+      - DJANGO_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - ./src:/app/src
+      - ./media:/app/media  # Добавлено для консистентности
     
-    celery_beat:
-      build:.
-      command:celery - A config beat -loglevel-info
-      enviroment:
-        -DJANGO_ENV = development 
-        -REDIS_URL = redis://:6379/0
-        -CELERY_BROKER_URL = redis://localhost:6379/0
-      depends_on:
-        -redis
-      volumes:
-        -./src:/app/src
+  celery_beat:
+    build: .
+    command: celery -A config beat --loglevel=info  # Исправлено: - A config → -A config
+    environment:
+      - DJANGO_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - ./src:/app/src
+      - ./media:/app/media  # Добавлено для консистентности
